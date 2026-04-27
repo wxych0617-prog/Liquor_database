@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>白酒数据库 | 华泰食饮研究</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+  :root {
+    --ht-blue: #1a5fa8;
+    --ht-blue-light: #2471c7;
+    --ht-blue-pale: #e8f0fb;
+    --ht-red: #c0392b;
+    --ht-gold: #c9a227;
+    --ht-gray: #f5f6f8;
+    --ht-border: #dde3ec;
+    --text-primary: #1a2332;
+    --text-secondary: #5a6478;
+    --text-muted: #8a94a6;
+    --card-shadow: 0 2px 12px rgba(26,95,168,0.08);
+    --card-hover: 0 6px 24px rgba(26,95,168,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+    background: #f0f3f8;
+    color: var(--text-primary);
+    min-height: 100vh;
+  }
+
+  /* ── 顶部导航 ── */
+  .navbar {
+    background: #fff;
+    border-bottom: 2px solid var(--ht-blue);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .navbar-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+  .brand-badge {
+    background: var(--ht-blue);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 3px;
+    letter-spacing: 1px;
+  }
+  .brand-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.5px;
+  }
+  .navbar-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* ── 主体 ── */
+  .main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 24px 60px;
+  }
+
+  /* ── 页面标题 ── */
+  .page-header {
+    margin-bottom: 28px;
+  }
+  .page-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+  .page-header p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  .page-header .stats {
+    display: flex;
+    gap: 24px;
+    margin-top: 14px;
+  }
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+  }
+  .stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ht-blue);
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* ── Tab 切换 ── */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--ht-border);
+    margin-bottom: 24px;
+  }
+  .tab-btn {
+    padding: 10px 28px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tab-btn:hover { color: var(--ht-blue); }
+  .tab-btn.active {
+    color: var(--ht-blue);
+    border-bottom-color: var(--ht-blue);
+    font-weight: 600;
+  }
+  .tab-count {
+    background: var(--ht-blue-pale);
+    color: var(--ht-blue);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 10px;
+  }
+  .tab-btn.active .tab-count {
+    background: var(--ht-blue);
+    color: #fff;
+  }
+
+  /* ── 分类区块 ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--ht-border);
+  }
+  .section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .section-dot {
+    width: 4px;
+    height: 18px;
+    background: var(--ht-blue);
+    border-radius: 2px;
+  }
+  .section-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-left: auto;
+  }
+
+  /* ── 卡片网格 ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 36px;
+  }
+
+  .card {
+    background: #fff;
+    border: 1px solid var(--ht-border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--ht-blue);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .card:hover {
+    box-shadow: var(--card-hover);
+    border-color: #b8ccec;
+    transform: translateY(-2px);
+  }
+  .card:hover::before { opacity: 1; }
+
+  .card-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .card-type-badge {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: 500;
+  }
+  .badge-price { background: #eaf3ff; color: var(--ht-blue); }
+  .badge-factory { background: #fff3e0; color: #e67e00; }
+  .badge-ratio { background: #f0faf0; color: #1e8a3e; }
+
+  .card-latest {
+    margin-top: 4px;
+  }
+  .latest-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ht-red);
+    line-height: 1;
+  }
+  .latest-unit {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-left: 2px;
+  }
+  .latest-date {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .card-change {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 6px;
+    padding: 2px 7px;
+    border-radius: 3px;
+  }
+  .change-up { background: #fff0f0; color: var(--ht-red); }
+  .change-down { background: #f0faf4; color: #1e8a3e; }
+  .change-flat { background: #f5f5f5; color: var(--text-muted); }
+
+  .card-mini-trend {
+    margin-top: 10px;
+    height: 36px;
+  }
+
+  .card-footer {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid #f0f2f5;
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-footer-link {
+    color: var(--ht-blue);
+    font-weight: 500;
+  }
+
+  /* ── 比价卡片 ── */
+  .ratio-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+    margin-bottom: 36px;
+  }
+  .ratio-card {
+    background: linear-gradient(135deg, #f8faff 0%, #eef4ff 100%);
+    border: 1px solid #c8daf5;
+    border-radius: 8px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .ratio-card:hover {
+    box-shadow: var(--card-hover);
+    transform: translateY(-2px);
+  }
+  .ratio-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ht-blue);
+  }
+
+  /* ── 模态框 ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 20, 40, 0.55);
+    z-index: 2000;
+    backdrop-filter: blur(2px);
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+
+  .modal {
+    background: #fff;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 820px;
+    max-height: 88vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    animation: modalIn 0.22s ease;
+  }
+  @keyframes modalIn {
+    from { transform: scale(0.94) translateY(16px); opacity: 0; }
+    to   { transform: scale(1) translateY(0); opacity: 1; }
+  }
+
+  .modal-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--ht-border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  .modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .modal-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  .modal-close {
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    background: var(--ht-gray);
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .modal-close:hover { background: #dde3ec; }
+
+  .modal-body { padding: 20px 24px 24px; }
+
+  /* 时间范围选择 */
+  .time-range-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .range-btn {
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--ht-border);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .range-btn:hover { border-color: var(--ht-blue); color: var(--ht-blue); }
+  .range-btn.active {
+    background: var(--ht-blue);
+    border-color: var(--ht-blue);
+    color: #fff;
+  }
+
+  .chart-container {
+    position: relative;
+    height: 340px;
+  }
+
+  /* 统计摘要 */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .stat-box {
+    background: var(--ht-gray);
+    border-radius: 6px;
+    padding: 10px 14px;
+  }
+  .stat-box-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .stat-box-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .stat-box-value.red { color: var(--ht-red); }
+  .stat-box-value.green { color: #1e8a3e; }
+  .stat-box-value.blue { color: var(--ht-blue); }
+
+  /* 数据表格 */
+  .data-table-wrap {
+    margin-top: 20px;
+    border: 1px solid var(--ht-border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .data-table-header {
+    background: var(--ht-gray);
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--ht-border);
+  }
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .data-table th {
+    background: #fafbfc;
+    padding: 8px 14px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--ht-border);
+    font-size: 12px;
+  }
+  .data-table td {
+    padding: 8px 14px;
+    border-bottom: 1px solid #f0f2f5;
+    color: var(--text-primary);
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: var(--ht-blue-pale); }
+  .td-up { color: var(--ht-red); font-weight: 600; }
+  .td-down { color: #1e8a3e; font-weight: 600; }
+
+  /* ── 空态 ── */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── 页脚 ── */
+  .footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 12px;
+    color: var(--text-muted);
+    border-top: 1px solid var(--ht-border);
+    background: #fff;
+    margin-top: 40px;
+  }
+
+  /* ── 响应式 ── */
+  @media (max-width: 640px) {
+    .cards-grid { grid-template-columns: repeat(2, 1fr); }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .ratio-cards { grid-template-columns: 1fr; }
+  }
+
+  /* ── 业绩跟踪表格 ── */
+  .perf-summary {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  .perf-stat-box {
+    background: #fff;
+    border: 1px solid var(--ht-border);
+    border-radius: 8px;
+    padding: 14px 20px;
+    min-width: 140px;
+    flex: 1;
+  }
+  .perf-stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  .perf-stat-value {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .perf-stat-value.red { color: var(--ht-red); }
+  .perf-stat-value.green { color: #1e8a3e; }
+  .perf-stat-value.gray { color: var(--text-muted); }
+  .perf-stat-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+
+  .perf-table-wrap {
+    background: #fff;
+    border: 1px solid var(--ht-border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .perf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .perf-table thead th {
+    background: var(--ht-blue-pale);
+    padding: 11px 14px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--ht-border);
+    white-space: nowrap;
+  }
+  .perf-table thead th:first-child { text-align: left; }
+  .perf-table tbody tr {
+    border-bottom: 1px solid #f0f2f5;
+    transition: background 0.15s;
+  }
+  .perf-table tbody tr:hover { background: var(--ht-blue-pale); }
+  .perf-table tbody tr:last-child { border-bottom: none; }
+  .perf-table tbody td {
+    padding: 10px 14px;
+    text-align: center;
+    color: var(--text-primary);
+  }
+  .perf-table tbody td:first-child { text-align: left; font-weight: 500; }
+  .perf-table .company-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .perf-table .company-name {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-primary);
+  }
+  .perf-table .company-code {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .perf-table .status-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .status-disclosed {
+    background: #fff0f0;
+    color: var(--ht-red);
+  }
+  .status-pending {
+    background: var(--ht-gray);
+    color: var(--text-muted);
+  }
+  .val-up { color: var(--ht-red); font-weight: 600; }
+  .val-down { color: #1e8a3e; font-weight: 600; }
+  .val-neutral { color: var(--text-secondary); }
+  .val-null { color: var(--text-muted); font-style: italic; }
+  .date-cell { font-size: 12px; color: var(--text-muted); }
+  .pending-row { opacity: 0.7; }
+  .perf-note {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 12px;
+    padding: 0 4px;
+  }
+
+  /* 分类标题行 */
+  .perf-table .category-row td {
+    background: var(--ht-blue);
+    color: #fff;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 7px 14px;
+    text-align: left;
+    letter-spacing: 0.5px;
+  }
+  .perf-table .category-row.cat-gaoduan td    { background: #c0392b; }
+  .perf-table .category-row.cat-quyu td      { background: #1a5fa8; }
+  .perf-table .category-row.cat-san td       { background: #7c3aed; }
+  .perf-table .category-row.cat-dicha td     { background: #1e8a3e; }
+  .perf-table .category-row.cat-total td     { background: #2d3748; }
+
+  /* 汇总行 */
+  .perf-table .total-row td {
+    background: #f8f9ff;
+    font-weight: 600;
+    font-size: 12px;
+    border-top: 2px solid var(--ht-border);
+  }
+
+  /* 分类小计行 */
+  .perf-table .subtotal-row td {
+    background: #f5f6f8;
+    font-weight: 600;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
+  /* 响应式表格 */
+  @media (max-width: 900px) {
+    .perf-table-wrap { overflow-x: auto; }
+    .perf-table { min-width: 700px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 导航栏 -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="navbar-brand" href="#">
+      <span class="brand-badge">华泰研究</span>
+      <span class="brand-title">白酒数据库</span>
+    </a>
+    <span class="navbar-meta" id="updateTime">数据更新中…</span>
+  </div>
+</nav>
+
+<div class="main">
+  <!-- 页面标题 -->
+  <div class="page-header">
+    <h1>白酒批价数据库</h1>
+    <p>覆盖茅台、五粮液、泸州老窖等高端酒以及洋河、汾酒、剑南春等次高端酒批发价格历史走势</p>
+    <div class="stats">
+      <div class="stat-item">
+        <span class="stat-value" id="totalProducts">—</span>
+        <span class="stat-label">追踪品类</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="totalRecords">—</span>
+        <span class="stat-label">数据记录</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="dataStart">—</span>
+        <span class="stat-label">数据起始</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="dataEnd">—</span>
+        <span class="stat-label">最新更新</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 切换 -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('gaoduan')">
+      高端白酒
+      <span class="tab-count" id="cnt-gaoduan">—</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('cigaoduan')">
+      次高端白酒
+      <span class="tab-count" id="cnt-cigaoduan">—</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('performance')">
+      业绩跟踪
+      <span class="tab-count" id="cnt-performance">19</span>
+    </button>
+  </div>
+
+  <!-- 高端白酒（批价 + 出厂价 + 比价三大区块） -->
+  <div class="tab-panel active" id="panel-gaoduan">
+    <div class="section-header">
+      <div class="section-dot"></div>
+      <span class="section-title">高端白酒批价</span>
+      <span class="section-note">飞天茅台 · 五粮液 · 国窖1573 · 茅台1935 | 月度数据，2006年起</span>
+    </div>
+    <div class="cards-grid" id="grid-gaoduan-p"></div>
+
+    <div class="section-header">
+      <div class="section-dot" style="background:#e67e22"></div>
+      <span class="section-title">高端白酒出厂价</span>
+      <span class="section-note">飞天茅台出厂价 · 五粮液计划内/外 · 国窖出厂价</span>
+    </div>
+    <div class="cards-grid" id="grid-gaoduan-f"></div>
+
+    <div class="section-header">
+      <div class="section-dot" style="background:#1e8a3e"></div>
+      <span class="section-title">价格比值指标</span>
+      <span class="section-note">高端品间相对强弱监控</span>
+    </div>
+    <div class="ratio-cards" id="grid-ratio"></div>
+  </div>
+
+  <!-- 次高端 -->
+  <div class="tab-panel" id="panel-cigaoduan">
+    <div class="section-header">
+      <div class="section-dot" style="background:#8b5cf6"></div>
+      <span class="section-title">次高端白酒批价</span>
+      <span class="section-note">洋河 · 古井 · 汾酒 · 舍得 · 郎酒 · 剑南春 | 2019年起</span>
+    </div>
+    <div class="cards-grid" id="grid-cigaoduan"></div>
+  </div>
+
+  <!-- 业绩跟踪 -->
+  <div class="tab-panel" id="panel-performance">
+    <div class="section-header">
+      <div class="section-dot" style="background:#c0392b"></div>
+      <span class="section-title">SW白酒 · 1Q26 业绩跟踪</span>
+      <span class="section-note">高端酒 / 区域次高端龙头 / 三线次高端 / 地产名酒 | 数据截至 2026/04/27 · 红色：已披露 | 灰色：待披露</span>
+    </div>
+    <div class="perf-table-wrap" id="perfTableWrap">
+      <div class="perf-summary" id="perfSummary"></div>
+      <table class="perf-table" id="perfTable">
+        <thead id="perfTableHead"></thead>
+        <tbody id="perfTableBody"></tbody>
+      </table>
+    </div>
+    <div class="perf-note">
+      * 数据来源：各公司公告 / 东方财富 / 同花顺。已披露数据以实际公告为准，待披露数据以预约披露日期为准。珍酒李渡（06979.HK）为港股，不强制披露一季报。
+    </div>
+  </div>
+</div>
+
+<!-- 模态框 -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalTitle">—</div>
+        <div class="modal-subtitle" id="modalSubtitle">—</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="time-range-bar" id="rangeBar"></div>
+      <div class="chart-container">
+        <canvas id="modalChart"></canvas>
+      </div>
+      <div class="stats-row" id="statsRow"></div>
+      <div class="data-table-wrap">
+        <div class="data-table-header">
+          <span>近期数据</span>
+          <span id="tableRecordCount">—</span>
+        </div>
+        <table class="data-table" id="dataTable">
+          <thead><tr><th>日期</th><th>价格 (元)</th><th>环比变动</th></tr></thead>
+          <tbody id="dataTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 页脚 -->
+<div class="footer">
+  <strong>华泰证券食品饮料研究</strong> · 白酒批价追踪系统 · 数据来源：华泰研究
+</div>
+
+<script>
+// ============================================================
+// 数据注入（从JSON文件直接嵌入）
+// ============================================================
+const RAW_JSON_PATH = './白酒批价.json';
+
+// 高端批价（不含出厂价）
+const GAODUAN_PRICE_SERIES = [
+  { key: '普飞：批价',        name: '飞天茅台',      brand: '贵州茅台', color: '#c0392b' },
+  { key: '普飞：批价（散瓶）', name: '飞天茅台（散瓶）', brand: '贵州茅台', color: '#e74c3c' },
+  { key: '巽风飞天：批价',    name: '巽风飞天',      brand: '贵州茅台', color: '#ff6b6b' },
+  { key: '茅台1935:批价',    name: '茅台1935',      brand: '贵州茅台', color: '#d35400' },
+  { key: '普五：批价',        name: '普通五粮液',    brand: '五粮液',   color: '#1a5fa8' },
+  { key: '国窖1573：批价',    name: '国窖1573',      brand: '泸州老窖', color: '#1e8a3e' },
+];
+
+// 高端出厂价
+const GAODUAN_FACTORY_SERIES = [
+  { key: '普飞：出厂价',        name: '飞天茅台出厂价',    brand: '贵州茅台', color: '#e67e22' },
+  { key: '五粮液：计划内出厂价', name: '五粮液计划内出厂价',  brand: '五粮液',   color: '#2980b9' },
+  { key: '五粮液：计划外打款价', name: '五粮液计划外打款价',  brand: '五粮液',   color: '#3498db' },
+  { key: '国窖：出厂价',        name: '国窖出厂价',         brand: '泸州老窖', color: '#27ae60' },
+];
+
+const RATIO_SERIES = [
+  { key: '普飞批价/普五批价（右轴）', name: '茅/五比价', brand: '飞天茅台 ÷ 普五', color: '#8b5cf6' },
+  { key: '普五批价/国窖1573批价',     name: '五/窖比价', brand: '普五 ÷ 国窖1573',  color: '#0891b2' },
+];
+
+const CIGAODUAN_SERIES = [
+  { key: '水晶剑批价',    name: '水晶剑南春', brand: '剑南春',  color: '#8b5cf6' },
+  { key: '梦之蓝M6+批价', name: '梦之蓝M6+', brand: '洋河',    color: '#2563eb' },
+  { key: '梦之蓝水晶版批价', name: '梦之蓝水晶版', brand: '洋河', color: '#3b82f6' },
+  { key: '青花30批价',    name: '青花30',    brand: '汾酒',    color: '#4f46e5' },
+  { key: '青花20批价',    name: '青花20',    brand: '汾酒',    color: '#6366f1' },
+  { key: '红花郎15批价',  name: '红花郎15',  brand: '郎酒',    color: '#dc2626' },
+  { key: '典藏批价',      name: '典藏',      brand: '郎酒',    color: '#ef4444' },
+  { key: '井台装批价',    name: '井台装',    brand: '剑南春',  color: '#7c3aed' },
+  { key: '臻酿8号批价',   name: '臻酿8号',   brand: '今世缘',  color: '#059669' },
+  { key: '智慧舍得批价',  name: '智慧舍得',  brand: '舍得',    color: '#d97706' },
+  { key: '品味舍得批价',  name: '品味舍得',  brand: '舍得',    color: '#f59e0b' },
+  { key: '紫坛批价',      name: '古井紫坛',  brand: '古井贡',  color: '#b45309' },
+  { key: '红坛批价',      name: '古井红坛',  brand: '古井贡',  color: '#c2410c' },
+  { key: '古20批价',      name: '古井20年',  brand: '古井贡',  color: '#ea580c' },
+];
+
+// ============================================================
+// 状态
+// ============================================================
+let allData = null;
+let currentChart = null;
+let currentSeries = null;
+let currentKey = null;
+
+// ============================================================
+// 工具函数
+// ============================================================
+function getSeriesData(data, key) {
+  return data
+    .filter(r => r['日期'] && r[key] !== null && r[key] !== undefined)
+    .map(r => ({ x: r['日期'], y: r[key] }));
+}
+
+function getLastValue(data, key) {
+  const pts = getSeriesData(data, key);
+  return pts.length ? pts[pts.length - 1] : null;
+}
+
+function formatPrice(v, isRatio) {
+  if (v === null || v === undefined) return '—';
+  if (isRatio) return v.toFixed(3);
+  return v.toLocaleString('zh-CN');
+}
+
+function calcChange(pts) {
+  if (pts.length < 2) return null;
+  const prev = pts[pts.length - 2].y;
+  const curr = pts[pts.length - 1].y;
+  if (!prev) return null;
+  return ((curr - prev) / prev * 100);
+}
+
+function renderChange(pct) {
+  if (pct === null) return '';
+  const cls = pct > 0 ? 'change-up' : pct < 0 ? 'change-down' : 'change-flat';
+  const sym = pct > 0 ? '▲' : pct < 0 ? '▼' : '—';
+  return `<span class="card-change ${cls}">${sym} ${Math.abs(pct).toFixed(2)}%</span>`;
+}
+
+function filterByRange(pts, rangeKey) {
+  if (!pts.length) return pts;
+  const last = new Date(pts[pts.length - 1].x);
+  let start;
+  if      (rangeKey === '1Y')  { start = new Date(last); start.setFullYear(start.getFullYear() - 1); }
+  else if (rangeKey === '3Y')  { start = new Date(last); start.setFullYear(start.getFullYear() - 3); }
+  else if (rangeKey === '5Y')  { start = new Date(last); start.setFullYear(start.getFullYear() - 5); }
+  else if (rangeKey === '10Y') { start = new Date(last); start.setFullYear(start.getFullYear() - 10); }
+  else return pts;
+  return pts.filter(p => new Date(p.x) >= start);
+}
+
+// ============================================================
+// 渲染卡片
+// ============================================================
+function renderCard(series, dataRows, cardType) {
+  const pts = getSeriesData(dataRows, series.key);
+  const last = pts.length ? pts[pts.length - 1] : null;
+  const pct  = calcChange(pts);
+
+  const isRatio    = cardType === 'ratio';
+  const isFactory  = cardType === 'factory';
+  const typeLabel  = isRatio ? '比值' : isFactory ? '出厂价' : '批价';
+  const badgeCls   = isRatio ? 'badge-ratio' : isFactory ? 'badge-factory' : 'badge-price';
+  const valueStr   = last ? formatPrice(last.y, isRatio) : '暂无';
+  const unitStr    = isRatio ? '' : '元';
+
+  return `
+  <div class="card" onclick="openModal('${series.key}', '${cardType}')">
+    <div class="card-name">
+      ${series.name}
+      <span class="card-type-badge ${badgeCls}">${typeLabel}</span>
+    </div>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">${series.brand}</div>
+    <div class="card-latest">
+      <span class="latest-value" style="color:${series.color}">${valueStr}</span>
+      <span class="latest-unit">${unitStr}</span>
+    </div>
+    ${last ? '<div class="latest-date">' + last.x + '</div>' : ''}
+    ${renderChange(pct)}
+    <div class="card-footer">
+      <span>${pts.length} 个数据点</span>
+      <span class="card-footer-link">查看走势 →</span>
+    </div>
+  </div>`;
+}
+
+function renderRatioCard(series, dataRows) {
+  const pts = getSeriesData(dataRows, series.key);
+  const last = pts.length ? pts[pts.length - 1] : null;
+  const pct = calcChange(pts);
+
+  return `
+  <div class="ratio-card" onclick="openModal('${series.key}', 'ratio')">
+    <div class="card-name" style="margin-bottom:4px">
+      ${series.name}
+      <span class="card-type-badge badge-ratio">比价</span>
+    </div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">${series.brand}</div>
+    <div class="card-latest">
+      <span class="ratio-value" style="color:${series.color}">${last ? last.y.toFixed(3) : '—'}</span>
+    </div>
+    ${last ? `<div class="latest-date">${last.x}</div>` : ''}
+    ${renderChange(pct)}
+    <div class="card-footer" style="margin-top:10px">
+      <span>${pts.length} 个数据点</span>
+      <span class="card-footer-link">查看走势 →</span>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// 模态框
+// ============================================================
+function openModal(key, cardType) {
+  const allSeries = [...GAODUAN_PRICE_SERIES, ...GAODUAN_FACTORY_SERIES, ...RATIO_SERIES, ...CIGAODUAN_SERIES];
+  const seriesCfg = allSeries.find(s => s.key === key);
+  if (!seriesCfg) return;
+
+  const isRatio   = cardType === 'ratio';
+  const isFactory = cardType === 'factory';
+  const isGaoduan = GAODUAN_PRICE_SERIES.find(s => s.key === key)
+                 || GAODUAN_FACTORY_SERIES.find(s => s.key === key)
+                 || RATIO_SERIES.find(s => s.key === key);
+  const dataRows = isGaoduan ? allData['高端'] : allData['次高端'];
+  const pts = getSeriesData(dataRows, key);
+
+  currentSeries = { cfg: seriesCfg, pts, isRatio, isFactory };
+  currentKey = key;
+
+  const priceType = isRatio ? '价格比值' : isFactory ? '出厂价格' : '批发价格';
+  document.getElementById('modalTitle').textContent = seriesCfg.name;
+  document.getElementById('modalSubtitle').textContent =
+    seriesCfg.brand + ' | ' + priceType + ' | ' + (pts.length > 0 ? pts[0].x + ' 至 ' + pts[pts.length - 1].x : '暂无数据');
+
+  // 时间范围按钮
+  const ranges = ['1Y','3Y','5Y','10Y','全部'];
+  document.getElementById('rangeBar').innerHTML = ranges.map(r =>
+    `<button class="range-btn ${r==='全部'?'active':''}" onclick="setRange('${r}',this)">${r}</button>`
+  ).join('');
+
+  renderModalChart(pts, seriesCfg, '全部');
+  renderStatsRow(pts, seriesCfg, isRatio);
+  renderDataTable(pts, isRatio);
+
+  document.getElementById('modalOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function setRange(rangeKey, btn) {
+  document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const { cfg, pts, isRatio } = currentSeries;
+  const filtered = rangeKey === '全部' ? pts : filterByRange(pts, rangeKey);
+  renderModalChart(filtered, cfg, rangeKey);
+  renderStatsRow(filtered, cfg, isRatio);
+  renderDataTable(filtered, isRatio);
+}
+
+function renderModalChart(pts, cfg, rangeKey) {
+  if (currentChart) { currentChart.destroy(); currentChart = null; }
+  const ctx = document.getElementById('modalChart').getContext('2d');
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, 340);
+  gradient.addColorStop(0, hexToRgba(cfg.color, 0.25));
+  gradient.addColorStop(1, hexToRgba(cfg.color, 0.01));
+
+  currentChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [{
+        label: cfg.name,
+        data: pts,
+        borderColor: cfg.color,
+        backgroundColor: gradient,
+        borderWidth: 2,
+        pointRadius: pts.length > 100 ? 0 : 3,
+        pointHoverRadius: 5,
+        tension: 0.3,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const v = ctx.parsed.y;
+              return `  ${cfg.name}: ${currentSeries.isRatio ? v.toFixed(4) : v.toLocaleString('zh-CN') + ' 元'}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'time',
+          time: { unit: pts.length > 200 ? 'year' : pts.length > 60 ? 'quarter' : 'month', displayFormats: { year: 'yyyy', quarter: 'yyyy-QQQ', month: 'yyyy/MM' } },
+          grid: { color: '#f0f2f5' },
+          ticks: { color: '#8a94a6', font: { size: 11 } }
+        },
+        y: {
+          grid: { color: '#f0f2f5' },
+          ticks: {
+            color: '#8a94a6', font: { size: 11 },
+            callback: v => currentSeries.isRatio ? v.toFixed(3) : v.toLocaleString('zh-CN')
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderStatsRow(pts, cfg, isRatio) {
+  if (!pts.length) { document.getElementById('statsRow').innerHTML = ''; return; }
+  const vals = pts.map(p => p.y);
+  const last = vals[vals.length - 1];
+  const max  = Math.max(...vals);
+  const min  = Math.min(...vals);
+  const chg  = vals.length >= 2 ? ((last - vals[0]) / vals[0] * 100) : 0;
+  const fmt  = v => isRatio ? v.toFixed(4) : v.toLocaleString('zh-CN') + ' 元';
+
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-box"><div class="stat-box-label">当前值</div><div class="stat-box-value red">${fmt(last)}</div></div>
+    <div class="stat-box"><div class="stat-box-label">区间最高</div><div class="stat-box-value">${fmt(max)}</div></div>
+    <div class="stat-box"><div class="stat-box-label">区间最低</div><div class="stat-box-value">${fmt(min)}</div></div>
+    <div class="stat-box"><div class="stat-box-label">区间涨跌</div><div class="stat-box-value ${chg>=0?'red':'green'}">${chg>=0?'+':''}${chg.toFixed(2)}%</div></div>
+  `;
+}
+
+function renderDataTable(pts, isRatio) {
+  const recent = [...pts].reverse().slice(0, 30);
+  document.getElementById('tableRecordCount').textContent = `显示最近 ${recent.length} 条`;
+  const tbody = document.getElementById('dataTableBody');
+  tbody.innerHTML = recent.map((p, i) => {
+    const prev = recent[i + 1];
+    let chgHtml = '—';
+    if (prev) {
+      const pct = (p.y - prev.y) / prev.y * 100;
+      const cls = pct > 0 ? 'td-up' : pct < 0 ? 'td-down' : '';
+      const sym = pct > 0 ? '▲' : pct < 0 ? '▼' : '';
+      chgHtml = `<span class="${cls}">${sym} ${Math.abs(pct).toFixed(2)}%</span>`;
+    }
+    const valStr = isRatio ? p.y.toFixed(4) : p.y.toLocaleString('zh-CN');
+    return `<tr><td>${p.x}</td><td>${valStr}</td><td>${chgHtml}</td></tr>`;
+  }).join('');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+  if (currentChart) { currentChart.destroy(); currentChart = null; }
+}
+
+function closeModalOnOverlay(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ============================================================
+// 业绩跟踪数据（1Q26，数据截至 2026/04/27）
+// 仅保留图片中列出的上市公司，按图片分类分组
+// disclosed: true=已披露, false=未披露
+// revenue/profit 单位：亿元，YoY：百分比（%）
+// ============================================================
+
+const PERF_CATEGORIES = [
+  {
+    key: 'gaoduan',
+    name: '高端酒',
+    color: '#c0392b',
+    companies: [
+      { name: '贵州茅台', code: '600519.SH', disclosed: true,  disclosureDate: '04/24',
+        revenue: 539.09, revYoY: 6.54,  profit: 272.43, profitYoY: 1.47,  expectedDate: null },
+      { name: '五粮液',   code: '000858.SZ', disclosed: false, disclosureDate: null,
+        revenue: null,   revYoY: null,  profit: null,   profitYoY: null,   expectedDate: '04/29' },
+      { name: '泸州老窖', code: '000568.SZ', disclosed: false, disclosureDate: null,
+        revenue: null,   revYoY: null,  profit: null,   profitYoY: null,   expectedDate: '04/29' },
+    ]
+  },
+  {
+    key: 'quyu',
+    name: '区域次高端龙头',
+    color: '#1a5fa8',
+    companies: [
+      { name: '山西汾酒', code: '600809.SH', disclosed: false, disclosureDate: null,
+        revenue: null,   revYoY: null,  profit: null,   profitYoY: null,   expectedDate: '04/30' },
+      { name: '古井贡酒', code: '000596.SZ', disclosed: false, disclosureDate: null,
+        revenue: null,   revYoY: null,  profit: null,   profitYoY: null,   expectedDate: '04/29' },
+      { name: '洋河股份', code: '002304.SZ', disclosed: false, disclosureDate: null,
+        revenue: null,   revYoY: null,  profit: null,   profitYoY: null,   expectedDate: '04/28' },
+      { name: '今世缘',   code: '603369.SH', disclosed: false, disclosureDate: null,
+        revenue: null,   revYoY: null,  profit: null,   profitYoY: null,   expectedDate: '04/29' },
+      { name: '口子窖',   code: '603589.SH', disclosed: true,  disclosureDate: '04/22',
+        revenue: 13.75,  revYoY: -24.02, profit: 3.29, profitYoY: -46.16, expectedDate: null },
+      { name: '迎驾贡酒', code: '603198.SH', disclosed: true,  disclosureDate: '04/22',
+        revenue: 22.30,  revYoY: 8.91,  profit: 8.35,  profitYoY: 0.73,   expectedDate: null },
+    ]
+  },
+  {
+    key: 'san',
+    name: '三线次高端',
+    color: '#7c3aed',
+    companies: [
+      { name: '舍得酒业', code: '600702.SH', disclosed: true,  disclosureDate: '04/15',
+        revenue: 14.81,  revYoY: -6.01, profit: 2.32,  profitYoY: -33.10, expectedDate: null },
+      { name: '酒鬼酒',   code: '000799.SZ', disclosed: false, disclosureDate: null,
+        revenue: null,   revYoY: null,  profit: null,   profitYoY: null,   expectedDate: '04/29' },
+      { name: '水井坊',   code: '600779.SH', disclosed: false, disclosureDate: null,
+        revenue: null,   revYoY: null,  profit: null,   profitYoY: null,   expectedDate: '04/30' },
+      { name: '珍酒李渡', code: '06979.HK', disclosed: false, disclosureDate: null,
+        revenue: null,   revYoY: null,  profit: null,   profitYoY: null,   expectedDate: null,
+        note: '港股，不强制披露一季报' },
+    ]
+  },
+  {
+    key: 'dicha',
+    name: '地产名酒',
+    color: '#1e8a3e',
+    companies: [
+      { name: '老白干酒', code: '600559.SH', disclosed: true,  disclosureDate: '04/22',
+        revenue: 12.20,  revYoY: 4.49,  profit: 1.65,  profitYoY: 8.55,   expectedDate: null },
+      { name: '金徽酒',   code: '603919.SH', disclosed: true,  disclosureDate: '04/16',
+        revenue: 10.92,  revYoY: -1.46, profit: 2.05,  profitYoY: -12.51, expectedDate: null },
+      { name: '伊力特',   code: '600197.SH', disclosed: false, disclosureDate: null,
+        revenue: null,   revYoY: null,  profit: null,   profitYoY: null,   expectedDate: '04/30' },
+      { name: '金种子酒', code: '600199.SH', disclosed: false, disclosureDate: null,
+        revenue: null,   revYoY: null,  profit: null,   profitYoY: null,   expectedDate: '04/30' },
+      { name: '天佑德酒', code: '002646.SZ', disclosed: false, disclosureDate: null,
+        revenue: null,   revYoY: null,  profit: null,   profitYoY: null,   expectedDate: '04/30' },
+    ]
+  },
+];
+
+// 平铺版本（用于汇总计算）
+const PERF_DATA = PERF_CATEGORIES.flatMap(cat =>
+  cat.companies.map(c => ({ ...c, category: cat.name }))
+);
+
+function fmtRev(v) {
+  if (v === null || v === undefined) return '<span class="val-null">待披露</span>';
+  return v.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+function fmtYoY(v) {
+  if (v === null || v === undefined) return '<span class="val-null">—</span>';
+  const cls = v > 0 ? 'val-up' : v < 0 ? 'val-down' : 'val-neutral';
+  const sign = v > 0 ? '+' : '';
+  return `<span class="${cls}">${sign}${v.toFixed(2)}%</span>`;
+}
+
+function renderPerfTable() {
+  const disclosed = PERF_DATA.filter(d => d.disclosed);
+  const total = PERF_DATA.length;
+
+  // 汇总统计（仅已披露）
+  const disclosedRevItems = disclosed.filter(d => d.revenue !== null);
+  const disclosedProfItems = disclosed.filter(d => d.profit !== null);
+  const totalRev = disclosedRevItems.reduce((s, d) => s + d.revenue, 0);
+  const avgRevYoy = disclosedRevItems.length
+    ? disclosedRevItems.reduce((s, d) => s + d.revYoY, 0) / disclosedRevItems.length : null;
+  const avgProfitYoy = disclosedProfItems.length
+    ? disclosedProfItems.reduce((s, d) => s + d.profitYoY, 0) / disclosedProfItems.length : null;
+  const upCount = disclosedRevItems.filter(d => d.revYoY > 0).length;
+  const downCount = disclosedRevItems.filter(d => d.revYoY < 0).length;
+
+  // 汇总卡片
+  document.getElementById('perfSummary').innerHTML = `
+    <div class="perf-stat-box">
+      <div class="perf-stat-label">已披露</div>
+      <div class="perf-stat-value red">${disclosed.length}</div>
+      <div class="perf-stat-sub">家 / 共 ${total} 家</div>
+    </div>
+    <div class="perf-stat-box">
+      <div class="perf-stat-label">已披露合计营收</div>
+      <div class="perf-stat-value red">${fmtRev(totalRev)}</div>
+      <div class="perf-stat-sub">亿元</div>
+    </div>
+    <div class="perf-stat-box">
+      <div class="perf-stat-label">营收同比均值</div>
+      <div class="perf-stat-value ${avgRevYoy === null ? 'gray' : avgRevYoy >= 0 ? 'red' : 'green'}">
+        ${avgRevYoy === null ? '—' : (avgRevYoy >= 0 ? '+' : '') + avgRevYoy.toFixed(2) + '%'}
+      </div>
+      <div class="perf-stat-sub">增长 ${upCount} · 下降 ${downCount}</div>
+    </div>
+    <div class="perf-stat-box">
+      <div class="perf-stat-label">归母净利同比均值</div>
+      <div class="perf-stat-value ${avgProfitYoy === null ? 'gray' : avgProfitYoy >= 0 ? 'red' : 'green'}">
+        ${avgProfitYoy === null ? '—' : (avgProfitYoy >= 0 ? '+' : '') + avgProfitYoy.toFixed(2) + '%'}
+      </div>
+      <div class="perf-stat-sub">已披露 ${disclosedProfItems.length} 家均值</div>
+    </div>
+  `;
+
+  // 表头
+  document.getElementById('perfTableHead').innerHTML = `
+    <tr>
+      <th style="width:130px">公司</th>
+      <th style="width:90px">状态</th>
+      <th style="width:72px">披露日</th>
+      <th>1Q26 营收（亿元）</th>
+      <th>营收 YoY</th>
+      <th>1Q26 归母净利（亿元）</th>
+      <th>归母净利 YoY</th>
+    </tr>
+  `;
+
+  // 按分类渲染
+  let bodyHtml = '';
+  PERF_CATEGORIES.forEach(cat => {
+    const catDisclosed = cat.companies.filter(c => c.disclosed);
+    const catRevItems  = catDisclosed.filter(c => c.revenue !== null);
+    const catProfItems = catDisclosed.filter(c => c.profit !== null);
+    const catTotalRev  = catRevItems.reduce((s, c) => s + c.revenue, 0);
+    const catAvgRevYoy = catRevItems.length
+      ? catRevItems.reduce((s, c) => s + c.revYoY, 0) / catRevItems.length : null;
+    const catAvgProfYoy = catProfItems.length
+      ? catProfItems.reduce((s, c) => s + c.profitYoY, 0) / catProfItems.length : null;
+    const catTotalProfit = catProfItems.reduce((s, c) => s + c.profit, 0);
+
+    // 分类标题行（全 colspan）
+    bodyHtml += `<tr class="category-row cat-${cat.key}">
+      <td colspan="7">▶ ${cat.name}（${cat.companies.length}家 · 已披露 ${catDisclosed.length}家）</td>
+    </tr>`;
+
+    // 各公司数据行
+    cat.companies.forEach(d => {
+      const rowCls = d.disclosed ? '' : 'pending-row';
+      const statusBadge = d.disclosed
+        ? `<span class="status-badge status-disclosed">已披露</span>`
+        : `<span class="status-badge status-pending">待披露</span>`;
+      const dateCell = d.disclosed
+        ? `<span class="date-cell">${d.disclosureDate}</span>`
+        : `<span class="date-cell">${d.note || (d.expectedDate ? '预计 ' + d.expectedDate : '—')}</span>`;
+
+      bodyHtml += `<tr class="${rowCls}">
+        <td>
+          <div class="company-cell">
+            <span class="company-name">${d.name}</span>
+            <span class="company-code">${d.code}</span>
+          </div>
+        </td>
+        <td>${statusBadge}</td>
+        <td>${dateCell}</td>
+        <td>${fmtRev(d.revenue)}</td>
+        <td>${fmtYoY(d.revYoY)}</td>
+        <td>${fmtRev(d.profit)}</td>
+        <td>${fmtYoY(d.profitYoY)}</td>
+      </tr>`;
+    });
+
+    // 分类小计行（仅已披露有数据时）
+    if (catDisclosed.length > 0) {
+      bodyHtml += `<tr class="subtotal-row">
+        <td colspan="3" style="padding-left:28px">小计（${catDisclosed.length}家已披露均值）</td>
+        <td>${catRevItems.length ? catTotalRev.toFixed(2) : '—'}</td>
+        <td>${catAvgRevYoy !== null ? `<span class="${catAvgRevYoy >= 0 ? 'val-up' : 'val-down'}">${catAvgRevYoy >= 0 ? '+' : ''}${catAvgRevYoy.toFixed(2)}%</span>` : '—'}</td>
+        <td>${catProfItems.length ? catTotalProfit.toFixed(2) : '—'}</td>
+        <td>${catAvgProfYoy !== null ? `<span class="${catAvgProfYoy >= 0 ? 'val-up' : 'val-down'}">${catAvgProfYoy >= 0 ? '+' : ''}${catAvgProfYoy.toFixed(2)}%</span>` : '—'}</td>
+      </tr>`;
+    }
+  });
+
+  // 合计行
+  bodyHtml += `<tr class="total-row">
+    <td colspan="3"><strong>上市公司合计（${disclosed.length}家已披露均值）</strong></td>
+    <td><strong>${totalRev.toFixed(2)}</strong></td>
+    <td>${avgRevYoy !== null ? `<span class="${avgRevYoy >= 0 ? 'val-up' : 'val-down'}"><strong>${avgRevYoy >= 0 ? '+' : ''}${avgRevYoy.toFixed(2)}%</strong></span>` : '—'}</td>
+    <td><strong>${disclosedProfItems.reduce((s, d) => s + d.profit, 0).toFixed(2)}</strong></td>
+    <td>${avgProfitYoy !== null ? `<span class="${avgProfitYoy >= 0 ? 'val-up' : 'val-down'}"><strong>${avgProfitYoy >= 0 ? '+' : ''}${avgProfitYoy.toFixed(2)}%</strong></span>` : '—'}</td>
+  </tr>`;
+
+  document.getElementById('perfTableBody').innerHTML = bodyHtml;
+}
+
+// ============================================================
+// 颜色工具
+// ============================================================
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// ============================================================
+// Tab 切换
+// ============================================================
+function switchTab(tab) {
+  const tabs = ['gaoduan', 'cigaoduan', 'performance'];
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', tabs[i] === tab);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+// ============================================================
+// 初始化（加载JSON）
+// ============================================================
+async function init() {
+  try {
+    const resp = await fetch(RAW_JSON_PATH);
+    const json = await resp.json();
+    allData = json.data;
+
+    const gdRows  = allData['高端'];
+    const cgdRows = allData['次高端'];
+
+    // 统计数字
+    const allDates = [...new Set([...gdRows, ...cgdRows].map(r => r['日期']).filter(Boolean))].sort();
+    document.getElementById('totalProducts').textContent =
+      (GAODUAN_PRICE_SERIES.length + GAODUAN_FACTORY_SERIES.length + CIGAODUAN_SERIES.length + RATIO_SERIES.length);
+    document.getElementById('totalRecords').textContent =
+      (gdRows.length + cgdRows.length).toLocaleString('zh-CN');
+    document.getElementById('dataStart').textContent = allDates[0] ? allDates[0].slice(0, 7) : '—';
+    document.getElementById('dataEnd').textContent   = allDates[allDates.length - 1] ? allDates[allDates.length - 1].slice(0, 7) : '—';
+    document.getElementById('updateTime').textContent = '数据截至 ' + (allDates[allDates.length - 1] || '—');
+
+    // Tab 计数（高端=批价+出厂价+比价，次高端独立）
+    document.getElementById('cnt-gaoduan').textContent  = GAODUAN_PRICE_SERIES.length + GAODUAN_FACTORY_SERIES.length + RATIO_SERIES.length;
+    document.getElementById('cnt-cigaoduan').textContent  = CIGAODUAN_SERIES.length;
+
+    // 渲染高端 Tab：三大区块
+    document.getElementById('grid-gaoduan-p').innerHTML =
+      GAODUAN_PRICE_SERIES.map(s => renderCard(s, gdRows, 'price')).join('');
+    document.getElementById('grid-gaoduan-f').innerHTML =
+      GAODUAN_FACTORY_SERIES.map(s => renderCard(s, gdRows, 'factory')).join('');
+    document.getElementById('grid-ratio').innerHTML =
+      RATIO_SERIES.map(s => renderRatioCard(s, gdRows)).join('');
+
+    // 渲染次高端 Tab
+    document.getElementById('grid-cigaoduan').innerHTML =
+      CIGAODUAN_SERIES.map(s => renderCard(s, cgdRows, 'price')).join('');
+
+    // 渲染业绩跟踪
+    renderPerfTable();
+
+  } catch(e) {
+    console.error('数据加载失败:', e);
+    document.querySelector('.page-header p').textContent = '⚠️ 数据加载失败，请确认白酒批价.json文件与本HTML在同一目录下';
+  }
+}
+
+init();
+</script>
+</body>
+</html>
