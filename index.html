@@ -660,6 +660,42 @@
     margin-bottom: 16px;
   }
 
+  /* ── 动销跟踪 ── */
+  .dongxiao-wrap {
+    padding: 4px 0;
+  }
+  .dongxiao-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+    gap: 16px;
+  }
+  .dongxiao-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .dongxiao-company {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
+  }
+  .dongxiao-list {
+    margin: 0;
+    padding-left: 18px;
+  }
+  .dongxiao-list li {
+    font-size: 12px;
+    color: #495057;
+    line-height: 1.7;
+    margin-bottom: 6px;
+  }
+  .dongxiao-list li:last-child {
+    margin-bottom: 0;
+  }
+
   .kucun-table {
     border-collapse: collapse;
     min-width: 900px;
@@ -777,6 +813,7 @@
   .xinpin-table td {
     padding: 8px 12px;
     border-bottom: 1px solid #f0f0f0;
+    border-right: 1px solid #e0e0e0;
     vertical-align: middle;
     text-align: center;
   }
@@ -807,6 +844,16 @@
     display: inline-block;
     padding: 2px 6px;
     background: #e8f5e9;
+  }
+  .xinpin-company-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
     color: #2e7d32;
     border-radius: 4px;
     font-size: 11px;
@@ -826,7 +873,7 @@
 <nav class="navbar">
   <div class="navbar-inner">
     <a class="navbar-brand" href="#">
-      <span class="brand-badge">华泰研究</span>
+      <span class="brand-badge">华泰财富研究</span>
       <span class="brand-title">白酒数据库</span>
     </a>
     <span class="navbar-meta" id="updateTime">数据更新中…</span>
@@ -838,24 +885,6 @@
   <div class="page-header">
     <h1>白酒数据库</h1>
     <p>覆盖高端/次高端白酒批价及出厂价走势、SW白酒1Q26业绩跟踪、白酒上市公司新品发布追踪</p>
-    <div class="stats">
-      <div class="stat-item">
-        <span class="stat-value" id="totalProducts">—</span>
-        <span class="stat-label">追踪品类</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-value" id="totalRecords">—</span>
-        <span class="stat-label">数据记录</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-value" id="dataStart">—</span>
-        <span class="stat-label">数据起始</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-value" id="dataEnd">—</span>
-        <span class="stat-label">最新更新</span>
-      </div>
-    </div>
   </div>
 
   <!-- Tab 切换 -->
@@ -868,13 +897,17 @@
       业绩跟踪
       <span class="tab-count" id="cnt-performance">19</span>
     </button>
+    <button class="tab-btn" onclick="switchTab('dongxiao')">
+      动销跟踪
+      <span class="tab-count" id="cnt-dongxiao">8</span>
+    </button>
     <button class="tab-btn" onclick="switchTab('kucun')">
       库存水平
       <span class="tab-count" id="cnt-kucun">6</span>
     </button>
     <button class="tab-btn" onclick="switchTab('xinpin')">
       酒企新品
-      <span class="tab-count" id="cnt-xinpin">59</span>
+      <span class="tab-count" id="cnt-xinpin">78</span>
     </button>
   </div>
 
@@ -927,6 +960,16 @@
     <div class="perf-note">
       * 数据来源：各公司公告 / 东方财富 / 同花顺。已披露数据以实际公告为准，待披露数据以预约披露日期为准。珍酒李渡（06979.HK）为港股，不强制披露一季报。
     </div>
+  </div>
+
+  <!-- 动销跟踪 -->
+  <div class="tab-panel" id="panel-dongxiao">
+    <div class="section-header">
+      <div class="section-dot" style="background:#1e8a3e"></div>
+      <span class="section-title">SW白酒 · 近期动销跟踪</span>
+      <span class="section-note">2026年春糖调研汇总 | 数据截至 2026/04</span>
+    </div>
+    <div class="dongxiao-wrap" id="dongxiaoWrap"></div>
   </div>
 
   <!-- 库存水平 -->
@@ -1062,7 +1105,7 @@
       * 该图仅表示渠道  </div>
 
     <div class="perf-note">
-      ** 资料来源：Wind，渠道跟踪，华泰研究。
+      ** 资料来源：Wind，渠道跟踪，华泰财富研究。
     </div>
   </div>
 
@@ -1071,29 +1114,14 @@
     <div class="section-header">
       <div class="section-dot" style="background:#e67e22"></div>
       <span class="section-title">白酒上市公司新品追踪</span>
-      <span class="section-note">2025年新品发布动态</span>
+      <span class="section-note">新品发布动态</span>
     </div>
     
     <div class="perf-summary">
       <div class="perf-stat-box">
-        <div class="perf-stat-label">新品总数</div>
-        <div class="perf-stat-value red" id="xinpin-total">59</div>
+        <div class="perf-stat-label">近一月新品数量</div>
+        <div class="perf-stat-value red" id="xinpin-total">—</div>
         <div class="perf-stat-sub">个产品</div>
-      </div>
-      <div class="perf-stat-box">
-        <div class="perf-stat-label">酒企数量</div>
-        <div class="perf-stat-value" id="xinpin-companies">12</div>
-        <div class="perf-stat-sub">家上市公司</div>
-      </div>
-      <div class="perf-stat-box">
-        <div class="perf-stat-label">最早上市</div>
-        <div class="perf-stat-value green">2025-01</div>
-        <div class="perf-stat-sub">蛇年生肖茅台酒</div>
-      </div>
-      <div class="perf-stat-box">
-        <div class="perf-stat-label">最新统计</div>
-        <div class="perf-stat-value gray" id="xinpin-update">2026-04-27</div>
-        <div class="perf-stat-sub">华泰食饮整理</div>
       </div>
     </div>
 
@@ -1108,10 +1136,9 @@
       <table class="xinpin-table" id="xinpin-table">
         <thead>
           <tr>
-            <th class="sticky-col" style="width:55px;white-space:nowrap;">序号</th>
-            <th style="width:150px;white-space:nowrap;">酒企</th>
-            <th style="white-space:nowrap;">产品名称</th>
-            <th style="width:240px;white-space:nowrap;">上市时间</th>
+            <th style="width:150px;white-space:nowrap;">序号</th>
+            <th style="white-space:nowrap;text-align:center;">产品名称</th>
+            <th style="width:250px;white-space:nowrap;">上市时间</th>
           </tr>
         </thead>
         <tbody id="xinpin-tbody"></tbody>
@@ -1119,7 +1146,7 @@
     </div>
 
     <div class="perf-note">
-      ** 资料来源：华泰证券食品饮料团队整理。
+      * 资料来源：华泰证券食品饮料团队整理。
     </div>
   </div>
 
@@ -1158,7 +1185,7 @@
 
 <!-- 页脚 -->
 <div class="footer">
-  <strong>华泰证券食品饮料研究</strong> · 白酒批价追踪系统 · 数据来源：华泰研究
+  <strong>华泰证券食品饮料研究</strong> · 白酒批价追踪系统 · 数据来源：华泰财富研究
 </div>
 
 <script>
@@ -1208,73 +1235,90 @@ const CIGAODUAN_SERIES = [
 ];
 
 // ============================================================
-// 酒企新品数据
+// 酒企新品数据（公司顺序与业绩模块对齐，数据来源：酒业家2026春糖）
 // ============================================================
 const XINPIN_DATA = [
-  {序号:1,公司:"茅台(含集团与上市公司)",产品名:"蛇年生肖茅台酒",上市时间:"2025-01"},
-  {序号:2,公司:"茅台(含集团与上市公司)",产品名:"贵州茅台酒(笙乐飞天)",上市时间:"2025-01"},
-  {序号:3,公司:"茅台(含集团与上市公司)",产品名:"茅台1935(1.935L)",上市时间:"2025-03"},
-  {序号:4,公司:"茅台(含集团与上市公司)",产品名:"走进系列·英国",上市时间:"2025-06"},
-  {序号:5,公司:"茅台(含集团与上市公司)",产品名:"走进系列·法国",上市时间:"2025-06"},
-  {序号:6,公司:"茅台(含集团与上市公司)",产品名:"走进系列·意大利",上市时间:"2025-06"},
-  {序号:7,公司:"茅台(含集团与上市公司)",产品名:"走进系列·希腊",上市时间:"2025-06"},
-  {序号:8,公司:"茅台(含集团与上市公司)",产品名:"走进系列·日本",上市时间:"2025-06"},
-  {序号:9,公司:"茅台(含集团与上市公司)",产品名:"贵州茅台酒(五星商标上市70周年纪念)",上市时间:"2025-08"},
-  {序号:10,公司:"茅台(含集团与上市公司)",产品名:"茅台1935酒(高端)",上市时间:"2025-08"},
-  {序号:11,公司:"茅台(含集团与上市公司)",产品名:"贵州茅台酒(黄小西吃晚饭系列)",上市时间:"2025-08"},
-  {序号:12,公司:"茅台(含集团与上市公司)",产品名:"贵州茅台酒(精品)",上市时间:"2025-09"},
-  {序号:13,公司:"茅台(含集团与上市公司)",产品名:"umeet膳食纤维蓝莓复合果汁",上市时间:"2025-03"},
-  {序号:14,公司:"茅台(含集团与上市公司)",产品名:"umeet蓝莓刺梨汁",上市时间:"2025-03"},
-  {序号:15,公司:"茅台(含集团与上市公司)",产品名:"UMEET三倍浓缩蓝莓汁",上市时间:"2025-03"},
-  {序号:16,公司:"茅台(含集团与上市公司)",产品名:"umeet二倍浓缩蓝莓汁(复原)(线上款+线下款)",上市时间:"2025-03"},
-  {序号:17,公司:"茅台(含集团与上市公司)",产品名:"umeet蓝莓复合果汁(线上款+线下款)",上市时间:"2025-03"},
-  {序号:18,公司:"茅台(含集团与上市公司)",产品名:"umeet蓝莓果汁(线上款+线下款)",上市时间:"2025-03"},
-  {序号:19,公司:"茅台(含集团与上市公司)",产品名:"UMEET蓝莓气泡酒青橘乌龙味",上市时间:"2025-03"},
-  {序号:20,公司:"茅台(含集团与上市公司)",产品名:"悠蜜蓝莓酒(轻酿)半甜型",上市时间:"2025-03"},
-  {序号:21,公司:"茅台(含集团与上市公司)",产品名:"悠蜜蓝莓酒(轻酿)半干型",上市时间:"2025-03"},
-  {序号:22,公司:"茅台(含集团与上市公司)",产品名:"悠蜜蓝莓酒(精酿)USMOOTH",上市时间:"2025-03"},
-  {序号:23,公司:"茅台(含集团与上市公司)",产品名:"悠蜜蓝莓酒(精酿)UDREAM",上市时间:"2025-03"},
-  {序号:24,公司:"茅台(含集团与上市公司)",产品名:"台源红",上市时间:"2025-08"},
-  {序号:25,公司:"茅台(含集团与上市公司)",产品名:"台源光瓶酒",上市时间:"2025-09"},
-  {序号:26,公司:"五粮液",产品名:"五粮液·一见倾心29°",上市时间:"2025-08"},
-  {序号:27,公司:"五粮液",产品名:"五粮液风火轮精酿",上市时间:"2025-08"},
-  {序号:28,公司:"五粮液",产品名:"五粮液·尊享(黑金、红金)",上市时间:"2025-09"},
-  {序号:29,公司:"山西汾酒",产品名:"青花汾酒30复兴版升级款",上市时间:"2025-07"},
-  {序号:30,公司:"山西汾酒",产品名:"汾酒巨匠系列·灵琼",上市时间:"2025-08"},
-  {序号:31,公司:"山西汾酒",产品名:"汾酒巨匠系列·帝鉴",上市时间:"2025-08"},
-  {序号:32,公司:"山西汾酒",产品名:"汾酒巨匠系列·诗问",上市时间:"2025-08"},
-  {序号:33,公司:"山西汾酒",产品名:"汾酒巨匠系列·御载",上市时间:"2025-08"},
-  {序号:34,公司:"山西汾酒",产品名:"汾酒巨匠系列·万赏",上市时间:"2025-08"},
-  {序号:35,公司:"山西汾酒",产品名:"汾酒巨匠艺术家AP款·华典",上市时间:"2025-08"},
-  {序号:36,公司:"山西汾酒",产品名:"汾酒巨匠柒拾伍特别纪念款·华章",上市时间:"2025-08"},
-  {序号:37,公司:"山西汾酒",产品名:"清香25",上市时间:"2025-09"},
-  {序号:38,公司:"泸州老窖",产品名:"泸州老窖二曲(2025版)",上市时间:"2025-09"},
-  {序号:39,公司:"洋河股份",产品名:"微分子绿瓶",上市时间:"2025-01"},
-  {序号:40,公司:"洋河股份",产品名:"微分子覆盆子白兰地",上市时间:"2025-01"},
-  {序号:41,公司:"洋河股份",产品名:"微分子鉴赏版",上市时间:"2025-01"},
-  {序号:42,公司:"洋河股份",产品名:"第七代海之蓝",上市时间:"2025-03"},
-  {序号:43,公司:"洋河股份",产品名:"洋河高线光瓶酒·金洋河",上市时间:"2025-03"},
-  {序号:44,公司:"洋河股份",产品名:"洋河高线光瓶酒·蓝洋河",上市时间:"2025-03"},
-  {序号:45,公司:"习酒",产品名:"精酿习酒",上市时间:"近期"},
-  {序号:46,公司:"珍酒李渡",产品名:"大珍",上市时间:"2025-08"},
-  {序号:47,公司:"珍酒李渡",产品名:"牛市精酿",上市时间:"2025-08"},
-  {序号:48,公司:"郎酒",产品名:"龙马郎·白马",上市时间:"2025-09"},
-  {序号:49,公司:"郎酒",产品名:"龙马郎·黑马",上市时间:"2025-09"},
-  {序号:50,公司:"郎酒",产品名:"龙马郎·金马",上市时间:"2025-09"},
-  {序号:51,公司:"古井贡酒",产品名:"26度古20",上市时间:"2025-08"},
-  {序号:52,公司:"古井贡酒",产品名:"古井·汉",上市时间:"2025-09"},
-  {序号:53,公司:"古井贡酒",产品名:"古井·唐",上市时间:"2025-09"},
-  {序号:54,公司:"古井贡酒",产品名:"古井·宋",上市时间:"2025-09"},
-  {序号:55,公司:"古井贡酒",产品名:"古井·明",上市时间:"2025-09"},
-  {序号:56,公司:"舍得酒业",产品名:"舍得·自在29°",上市时间:"2025-08"},
-  {序号:57,公司:"水井坊",产品名:"水井坊·井18",上市时间:"2025-09"},
-  {序号:58,公司:"伊力特",产品名:"伊力酱酒",上市时间:"2025-09"},
-  {序号:59,公司:"伊力特",产品名:"伊力兼香",上市时间:"2025-09"},
+  {序号:1,公司:"茅台",产品名:"蛇年生肖茅台酒",上市时间:"2025-01"},
+  {序号:2,公司:"茅台",产品名:"贵州茅台酒（笙乐飞天）",上市时间:"2025-01"},
+  {序号:3,公司:"茅台",产品名:"茅台1935（1.935L）",上市时间:"2025-03"},
+  {序号:4,公司:"茅台",产品名:"umeet膳食纤维蓝莓复合果汁",上市时间:"2025-03"},
+  {序号:5,公司:"茅台",产品名:"umeet蓝莓刺梨汁",上市时间:"2025-03"},
+  {序号:6,公司:"茅台",产品名:"UMEET三倍浓缩蓝莓汁",上市时间:"2025-03"},
+  {序号:7,公司:"茅台",产品名:"umeet二倍浓缩蓝莓汁（复原）（线上款+线下款）",上市时间:"2025-03"},
+  {序号:8,公司:"茅台",产品名:"umeet蓝莓复合果汁（线上款+线下款）",上市时间:"2025-03"},
+  {序号:9,公司:"茅台",产品名:"umeet蓝莓果汁（线上款+线下款）",上市时间:"2025-03"},
+  {序号:10,公司:"茅台",产品名:"UMEET蓝莓气泡酒青橘乌龙味",上市时间:"2025-03"},
+  {序号:11,公司:"茅台",产品名:"悠蜜蓝莓酒（轻酿）半甜型",上市时间:"2025-03"},
+  {序号:12,公司:"茅台",产品名:"悠蜜蓝莓酒（轻酿）半干型",上市时间:"2025-03"},
+  {序号:13,公司:"茅台",产品名:"悠蜜蓝莓酒（精酿）USMOOTH",上市时间:"2025-03"},
+  {序号:14,公司:"茅台",产品名:"悠蜜蓝莓酒（精酿）UDREAM",上市时间:"2025-03"},
+  {序号:15,公司:"茅台",产品名:"走进系列·英国",上市时间:"2025-06"},
+  {序号:16,公司:"茅台",产品名:"走进系列·法国",上市时间:"2025-06"},
+  {序号:17,公司:"茅台",产品名:"走进系列·意大利",上市时间:"2025-06"},
+  {序号:18,公司:"茅台",产品名:"走进系列·希腊",上市时间:"2025-06"},
+  {序号:19,公司:"茅台",产品名:"走进系列·日本",上市时间:"2025-06"},
+  {序号:20,公司:"茅台",产品名:"贵州茅台酒（五星商标上市70周年纪念）",上市时间:"2025-08"},
+  {序号:21,公司:"茅台",产品名:"茅台1935酒（高端）",上市时间:"2025-08"},
+  {序号:22,公司:"茅台",产品名:"贵州茅台酒（黄小西吃晚饭系列）",上市时间:"2025-08"},
+  {序号:23,公司:"茅台",产品名:"台源红",上市时间:"2025-08"},
+  {序号:24,公司:"茅台",产品名:"贵州茅台酒（精品）",上市时间:"2025-09"},
+  {序号:25,公司:"茅台",产品名:"台源光瓶酒",上市时间:"2025-09"},
+  {序号:26,公司:"茅台",产品名:"赖茅・岁酝天和",上市时间:"2026-01"},
+  {序号:27,公司:"茅台",产品名:"蓝莓气泡酒",上市时间:"2026-02"},
+  {序号:28,公司:"五粮液",产品名:"五粮液·一见倾心29°",上市时间:"2025-08"},
+  {序号:29,公司:"五粮液",产品名:"五粮液风火轮精酿",上市时间:"2025-08"},
+  {序号:30,公司:"五粮液",产品名:"五粮液·尊享（黑金、红金）",上市时间:"2025-09"},
+  {序号:31,公司:"泸州老窖",产品名:"泸州老窖二曲（2025版）",上市时间:"2025-09"},
+  {序号:32,公司:"泸州老窖",产品名:"superx 人参酒",上市时间:"2026-02"},
+  {序号:33,公司:"泸州老窖",产品名:"苏洛溪",上市时间:"2026-02"},
+  {序号:34,公司:"山西汾酒",产品名:"青花汾酒30复兴版升级款",上市时间:"2025-07"},
+  {序号:35,公司:"山西汾酒",产品名:"汾酒巨匠系列·灵琼",上市时间:"2025-08"},
+  {序号:36,公司:"山西汾酒",产品名:"汾酒巨匠系列·帝鉴",上市时间:"2025-08"},
+  {序号:37,公司:"山西汾酒",产品名:"汾酒巨匠系列·诗问",上市时间:"2025-08"},
+  {序号:38,公司:"山西汾酒",产品名:"汾酒巨匠系列·御载",上市时间:"2025-08"},
+  {序号:39,公司:"山西汾酒",产品名:"汾酒巨匠系列·万赏",上市时间:"2025-08"},
+  {序号:40,公司:"山西汾酒",产品名:"汾酒巨匠艺术家AP款·华典",上市时间:"2025-08"},
+  {序号:41,公司:"山西汾酒",产品名:"汾酒巨匠柒拾伍特别纪念款·华章",上市时间:"2025-08"},
+  {序号:42,公司:"山西汾酒",产品名:"清香25",上市时间:"2025-09"},
+  {序号:43,公司:"山西汾酒",产品名:"汾享世界",上市时间:"2025-12"},
+  {序号:44,公司:"山西汾酒",产品名:"青花汾酒 30・西藏",上市时间:"2025-03"},
+  {序号:45,公司:"山西汾酒",产品名:"牧童水晶汾系列",上市时间:"2026-03"},
+  {序号:46,公司:"古井贡酒",产品名:"26度古20",上市时间:"2025-08"},
+  {序号:47,公司:"古井贡酒",产品名:"古井·汉",上市时间:"2025-09"},
+  {序号:48,公司:"古井贡酒",产品名:"古井·唐",上市时间:"2025-09"},
+  {序号:49,公司:"古井贡酒",产品名:"古井·宋",上市时间:"2025-09"},
+  {序号:50,公司:"古井贡酒",产品名:"古井·明",上市时间:"2025-09"},
+  {序号:51,公司:"古井贡酒",产品名:"年份原浆・轻古 7",上市时间:"2026-03"},
+  {序号:52,公司:"洋河股份",产品名:"微分子绿瓶",上市时间:"2025-01"},
+  {序号:53,公司:"洋河股份",产品名:"微分子覆盆子白兰地",上市时间:"2025-01"},
+  {序号:54,公司:"洋河股份",产品名:"微分子鉴赏版",上市时间:"2025-01"},
+  {序号:55,公司:"洋河股份",产品名:"第七代海之蓝",上市时间:"2025-03"},
+  {序号:56,公司:"洋河股份",产品名:"洋河高线光瓶酒·金洋河",上市时间:"2025-03"},
+  {序号:57,公司:"洋河股份",产品名:"洋河高线光瓶酒·蓝洋河",上市时间:"2025-03"},
+  {序号:58,公司:"今世缘",产品名:"高沟标样・金标",上市时间:"2025-04"},
+  {序号:59,公司:"今世缘",产品名:"高沟复刻版（红方）",上市时间:"2025-04"},
+  {序号:60,公司:"今世缘",产品名:"高沟复刻版（黑方）",上市时间:"2025-04"},
+  {序号:61,公司:"舍得酒业",产品名:"舍得·自在29°",上市时间:"2025-08"},
+  {序号:62,公司:"舍得酒业",产品名:"舍得中国智慧系列",上市时间:"2025-03"},
+  {序号:63,公司:"舍得酒业",产品名:"沱牌「韵」系列（红韵 / 祥韵）",上市时间:"2025-03"},
+  {序号:64,公司:"舍得酒业",产品名:"沱牌曲酒大师版",上市时间:"2025-03"},
+  {序号:65,公司:"酒鬼酒",产品名:"内参・大师酒十五年",上市时间:"2024-11"},
+  {序号:66,公司:"酒鬼酒",产品名:"酒鬼酒・妙品",上市时间:"2025-03"},
+  {序号:67,公司:"酒鬼酒",产品名:"酒鬼酒红坛30",上市时间:"2025-03"},
+  {序号:68,公司:"水井坊",产品名:"水井坊·井18",上市时间:"2025-09"},
+  {序号:69,公司:"水井坊",产品名:"第一坊系列",上市时间:"2025-03"},
+  {序号:70,公司:"水井坊",产品名:"珍心珍意清漾 29°",上市时间:"2026-02"},
+  {序号:71,公司:"珍酒李渡",产品名:"大珍",上市时间:"2025-08"},
+  {序号:72,公司:"珍酒李渡",产品名:"牛市精酿",上市时间:"2025-08"},
+  {序号:73,公司:"珍酒李渡",产品名:"珍五十",上市时间:"2025-03"},
+  {序号:74,公司:"老白干酒",产品名:"古法 8",上市时间:"2026-01"},
+  {序号:75,公司:"老白干酒",产品名:"古法 16",上市时间:"2026-01"},
+  {序号:76,公司:"伊力特",产品名:"伊力酱酒",上市时间:"2025-09"},
+  {序号:77,公司:"伊力特",产品名:"伊力兼香",上市时间:"2025-09"},
+  {序号:78,公司:"天佑德酒",产品名:"柠檬风味青稞酒",上市时间:"2025-07"},
+
 ];
 
-// ============================================================
-// 状态
-// ============================================================
 let allData = null;
 let currentChart = null;
 let currentSeries = null;
@@ -1285,18 +1329,20 @@ let currentXinpinFilter = '';
 // 酒企新品渲染
 // ============================================================
 const COMPANY_COLORS = {
-  '茅台(含集团与上市公司)': { bg: '#fff0f0', color: '#c0392b' },
+  '茅台': { bg: '#fff0f0', color: '#c0392b' },
   '五粮液': { bg: '#fff8e1', color: '#e67e22' },
   '山西汾酒': { bg: '#fffde7', color: '#9c8800' },
   '泸州老窖': { bg: '#fce4ec', color: '#880e4f' },
   '洋河股份': { bg: '#e8eaf6', color: '#303f9f' },
-  '习酒': { bg: '#f1f8e9', color: '#33691e' },
-  '珍酒李渡': { bg: '#fce4ec', color: '#880e4f' },
-  '郎酒': { bg: '#f9fbe7', color: '#558b2f' },
+  '珍酒李渡': { bg: '#fbe4e0', color: '#bf360c' },
   '古井贡酒': { bg: '#e0f7fa', color: '#006064' },
   '舍得酒业': { bg: '#fff8e1', color: '#ff6f00' },
   '水井坊': { bg: '#efebe9', color: '#4e342e' },
   '伊力特': { bg: '#fff3e0', color: '#e65100' },
+  '酒鬼酒': { bg: '#f3e5f5', color: '#6a1b9a' },
+  '天佑德酒': { bg: '#e8f5e9', color: '#2e7d32' },
+  '今世缘': { bg: '#fff9c4', color: '#f57f17' },
+  '老白干酒': { bg: '#fce4ec', color: '#880e4f' },
 };
 
 function renderXinpin(filter = '') {
@@ -1305,41 +1351,31 @@ function renderXinpin(filter = '') {
   
   const tbody = document.getElementById('xinpin-tbody');
   
-  // 按公司分组，计算每组的行数
-  const grouped = [];
-  let currentGroup = null;
-  for (const p of filtered) {
-    if (!currentGroup || currentGroup.company !== p.公司) {
-      if (currentGroup) grouped.push(currentGroup);
-      currentGroup = { company: p.公司, rows: [] };
-    }
-    currentGroup.rows.push(p);
-  }
-  if (currentGroup) grouped.push(currentGroup);
+  // 按时间从近到远排序
+  const sorted = [...filtered].sort((a, b) => {
+    return b.上市时间.localeCompare(a.上市时间);
+  });
   
   let html = '';
-  for (const group of grouped) {
-    const colors = COMPANY_COLORS[group.company] || { bg: '#f5f5f5', color: '#666' };
-    for (let i = 0; i < group.rows.length; i++) {
-      const p = group.rows[i];
-      const isRecent = p.上市时间 === '近期';
-      const companyCell = i === 0 
-        ? `<td class="company-cell" style="background:${colors.bg};color:${colors.color};vertical-align:middle;" rowspan="${group.rows.length}">${p.公司}</td>` 
-        : '';
-      html += `<tr>
-        <td class="sticky-col">${p.序号}</td>
-        ${companyCell}
-        <td>${p.产品名}</td>
-        <td style="${isRecent ? 'color:#e74c3c;font-weight:600;' : 'color:#666;'}">${p.上市时间}</td>
-      </tr>`;
-    }
-  }
+  sorted.forEach((p, idx) => {
+    const colors = COMPANY_COLORS[p.公司] || { bg: '#f5f5f5', color: '#666' };
+    const tagStyle = `background:${colors.bg};color:${colors.color};`;
+    html += `<tr>
+      <td>${idx + 1}</td>
+      <td style="text-align:center;">${p.产品名}<span class="xinpin-company-tag" style="${tagStyle}">${p.公司}</span></td>
+      <td style="color:#666;">${p.上市时间}</td>
+    </tr>`;
+  });
   tbody.innerHTML = html;
   
-  // 更新统计
-  const companies = [...new Set(XINPIN_DATA.map(p => p.公司))];
-  document.getElementById('xinpin-total').textContent = XINPIN_DATA.length;
-  document.getElementById('xinpin-companies').textContent = companies.length;
+  // 计算近三月新品数量
+  const now = new Date();
+  const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+  const recentCount = XINPIN_DATA.filter(p => {
+    const d = new Date(p.上市时间 + '-01');
+    return d >= threeMonthsAgo;
+  }).length;
+  document.getElementById('xinpin-total').textContent = recentCount;
 }
 
 function renderXinpinFilters() {
@@ -1687,6 +1723,104 @@ const PERF_DATA = PERF_CATEGORIES.flatMap(cat =>
   cat.companies.map(c => ({ ...c, category: cat.name }))
 );
 
+// ============================================================
+// 动销跟踪数据（2026年春糖调研，数据截至 2026/04）
+// ============================================================
+
+const DONGXIAO_DATA = [
+  {
+    company: '贵州茅台',
+    color: '#c0392b',
+    items: [
+      { text: '26Q1飞天茅台预计贡献主要增量，传统渠道发货节奏加快、i茅台平台春节期间投放量超预期；非标酒渠道、价格体系市场化，预计下滑。' },
+      { text: '飞天提价：自2026年3月31日起，飞天53%vol 500ml贵州茅台酒（2026）销售合同价由1169元/瓶调整为1269元/瓶，提升8.6%；自营体系零售价由1499元/瓶调整为1539元/瓶，提升2.7%。本次提价具有价格市场化的信号意义。' },
+      { text: '代售模式落地：①经销商单月可申购数量有限，销售后5%佣金月结，不转移物权；②专卖店配置专属i茅台码；③明确"资源随产品走"。' }
+    ]
+  },
+  {
+    company: '五粮液',
+    color: '#1a5fa8',
+    items: [
+      { text: '春节期间八代五粮液等核心产品尊重市场化规律，降价、考核动销质量给予市场费用，动销实现增长。' },
+      { text: '淡季将控货挺价为重点工作，适度减量，数字化系统识别市场真实容量和货物动销，精准投放以稳定价格。' },
+      { text: '注重新场景、新产品培育，通过世界杯等体育营销带动原有产品销售；考虑推出2两小装、2-3k收藏产品、1000元礼盒等新品。' },
+      { text: '渠道拓展：①在上海、成都等城市试点"专卖店×即时零售合作"以增加流量；②持续推进"名酒进名企"活动。' }
+    ]
+  },
+  {
+    company: '泸州老窖',
+    color: '#7c3aed',
+    items: [
+      { text: '38度国窖及中档酒产品开瓶表现较好，当前公司聚焦核心市场，强化38度品质优势。' },
+      { text: '2026年春节期间预计分产品表现差异化：①高度国窖预计双位数下滑；②38度国窖持平微增，受益于产品势能和全国化推进；③60版同比持平，老字号个位数增长。' },
+      { text: '坚持低度化、新品类年轻化、她经济，低度化有强大品质背书；今年将针对年轻化和女性消费群体开展百调酒吧、"国兴"品牌生活馆等布局。3月推出中端进攻型产品窖3、窖5，涵盖100-400元价格带，满足差异化场景饮用与礼赠需求。' }
+    ]
+  },
+  {
+    company: '山西汾酒',
+    color: '#e67e22',
+    items: [
+      { text: '分产品表现差异化：山西基本盘稳定青花20和巴拿马20动销平稳，30及以上有压力省外主品动销同比有所下滑，但预计下滑幅度小于同价位带整体情况。' },
+      { text: '未来产品发展"两头抓"。①青花20及以上高端产品：青花30省内42度推广铺货，省外聚焦高端消费者培育；②加强低端产品竹叶青和杏花村，推新品做增量。春糖期间陆续发布42度青花汾酒龙尊、陈皮汾酒(竹叶青系列酒)等新品。' }
+    ]
+  },
+  {
+    company: '洋河股份',
+    color: '#2563eb',
+    items: [
+      { text: '第一季度七代海之蓝、天之蓝等产品销售环比改善、渠道信心修复；但考虑到次高端以上产品需求仍有压力，公司以去库存、促动销为核心，报表端预计进一步出清经营状态有较大改善。' },
+      { text: '春节期间海之蓝消费者自点率提升，动销同比增长；目前第七代海之蓝产品省外铺货布局工作正在有序推进，公司将借势进一步夯实海之蓝市场销售份额。' },
+      { text: '3月中旬宣布将撤销原有多层级营销中心，全国统一设立14个大战区，决策链路缩短，设立7大事业部专项攻坚；精简层级，重塑考核，开展效率革命。' }
+    ]
+  },
+  {
+    company: '今世缘',
+    color: '#059669',
+    items: [
+      { text: '26Q1预计下滑幅度环比收窄，产品结构或有下移。Q1淡雅预计仍然贡献主要增量，主因提价前收款进度较快、春节动销需求较好。淡季公司以去库挺价为主，进一步释放表内压力。' },
+      { text: '淡季各产品以稳价格、去库存为主，核心单品国缘淡雅表现较好，近年来保持连年增长态势四开对开同比下滑、环比改善，预计进入Q2低基数期有望逐步改善。' },
+      { text: '春糖期间公司反馈经营重心高度聚焦于江苏省内及周边核心市场，对上海、浙江等周边市场的增长潜力持乐观态度，整体结构稳中向好。' },
+      { text: '3月24日新成立数字化营销中心，推进数字化宴席、终端赋能、会员体系建设及线上线下一体化营销闭环。' }
+    ]
+  },
+  {
+    company: '古井贡酒',
+    color: '#b45309',
+    items: [
+      { text: '26Q1预计报表延续调整趋势，淡季以去库存、促动销为主。产品端古20预计承压较大，古5/8相对较好也受到2501高基数压力，公司通过增加贡系列等新品补充收入。当前渠道压力仍然较大，淡季不给经销商库存压力。预计进入Q2，低基数下经营状态有望逐步改善。' },
+      { text: '今年公司聚焦白酒主业，以健康酒赛道为突破口构建差异化优势。产品上轻养社、神力酒是开辟第二增长曲线的关键；渠道上依托"三通工程"与数字化赋能，围绕轻养社打造场景化体系。' }
+    ]
+  },
+  {
+    company: '迎驾贡酒',
+    color: '#1e8a3e',
+    items: [
+      { text: '26Q1预计报表逐步开始改善。考虑到春节前(25Q4)回款加快，春节期间洞6、洞9动销势能较好，26Q1低基数下报表压力小于板块整体。当前渠道经营状态边际改善，建议关注库存去化节奏，预计先于板块迎来基本面拐点。' },
+      { text: '近期公司高管履新，杨照兵出任公司总经理，顾正祝出任销售公司总经理，与杨照兵共同打理相关事务，两位领导均为一线销售出身，市场经验较为丰富。' }
+    ]
+  }
+];
+
+function renderDongxiao() {
+  const container = document.getElementById('dongxiaoWrap');
+  let html = '<div class="dongxiao-grid">';
+  
+  DONGXIAO_DATA.forEach(item => {
+    html += `<div class="dongxiao-card" style="border-left:4px solid ${item.color}">
+      <div class="dongxiao-company" style="color:${item.color}">${item.company}</div>
+      <ul class="dongxiao-list">`;
+    
+    item.items.forEach(i => {
+      html += `<li>${i.text}</li>`;
+    });
+    
+    html += '</ul></div>';
+  });
+  
+  html += '</div>';
+  container.innerHTML = html;
+}
+
 function fmtRev(v) {
   if (v === null || v === undefined) return '<span class="val-null">待披露</span>';
   return v.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
@@ -1835,7 +1969,7 @@ function hexToRgba(hex, alpha) {
 // Tab 切换
 // ============================================================
 function switchTab(tab) {
-  const tabs = ['pijia', 'performance', 'kucun', 'xinpin'];
+  const tabs = ['pijia', 'performance', 'dongxiao', 'kucun', 'xinpin'];
   document.querySelectorAll('.tab-btn').forEach((b, i) => {
     b.classList.toggle('active', tabs[i] === tab);
   });
@@ -1857,16 +1991,12 @@ async function init() {
 
     // 统计数字
     const allDates = [...new Set([...gdRows, ...cgdRows].map(r => r['日期']).filter(Boolean))].sort();
-    document.getElementById('totalProducts').textContent =
-      (GAODUAN_PRICE_SERIES.length + GAODUAN_FACTORY_SERIES.length + CIGAODUAN_SERIES.length + RATIO_SERIES.length);
-    document.getElementById('totalRecords').textContent =
-      (gdRows.length + cgdRows.length).toLocaleString('zh-CN');
-    document.getElementById('dataStart').textContent = allDates[0] ? allDates[0].slice(0, 7) : '—';
-    document.getElementById('dataEnd').textContent   = allDates[allDates.length - 1] ? allDates[allDates.length - 1].slice(0, 7) : '—';
-    document.getElementById('updateTime').textContent = '数据截至 ' + (allDates[allDates.length - 1] || '—');
+    const updateEl = document.getElementById('updateTime');
+    if (updateEl) updateEl.textContent = '数据截至 ' + (allDates[allDates.length - 1] || '—');
 
     // Tab 计数（批价跟踪=高端批价+出厂价+比值+次高端，业绩跟踪=19家）
-    document.getElementById('cnt-pijia').textContent  =
+    const cntEl = document.getElementById('cnt-pijia');
+    if (cntEl) cntEl.textContent =
       GAODUAN_PRICE_SERIES.length + GAODUAN_FACTORY_SERIES.length + RATIO_SERIES.length + CIGAODUAN_SERIES.length;
 
     // 渲染高端 Tab：三大区块
@@ -1887,6 +2017,9 @@ async function init() {
     // 渲染酒企新品
     renderXinpinFilters();
     renderXinpin();
+
+    // 渲染动销跟踪
+    renderDongxiao();
 
   } catch(e) {
     console.error('数据加载失败:', e);
