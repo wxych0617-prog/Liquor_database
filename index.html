@@ -514,7 +514,7 @@
     .cards-grid { grid-template-columns: repeat(2, 1fr); }
     .stats-row { grid-template-columns: repeat(2, 1fr); }
     .ratio-cards { grid-template-columns: 1fr; }
-    .dongxiao-grid { grid-template-columns: 1fr; }
+    .dongxiao-grid { grid-template-columns: 1fr !important; }
     .dongxiao-card { padding: 12px; }
     .dongxiao-list li { font-size: 11px; }
   }
@@ -688,6 +688,9 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
     gap: 16px;
+  }
+  @media (max-width: 520px) {
+    .dongxiao-grid { grid-template-columns: 1fr; }
   }
   .dongxiao-card {
     background: #fff;
