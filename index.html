@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>白酒数据库 | 华泰食饮研究</title>
+<title>白酒数据库 | 华泰财富研究</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 <style>
@@ -74,6 +74,12 @@
     font-size: 12px;
     color: var(--text-muted);
   }
+  @media (max-width: 640px) {
+    .navbar-inner { padding: 0 12px; }
+    .brand-title { font-size: 14px; }
+    .navbar-meta { display: none; }
+    .main { padding: 16px 12px 40px; }
+  }
 
   /* ── 主体 ── */
   .main {
@@ -116,6 +122,12 @@
     color: var(--text-muted);
     margin-top: 2px;
   }
+  @media (max-width: 640px) {
+    .page-header h1 { font-size: 18px; }
+    .page-header .stats { gap: 12px; }
+    .stat-value { font-size: 16px; }
+    .stat-label { font-size: 10px; }
+  }
 
   /* ── Tab 切换 ── */
   .tab-bar {
@@ -156,6 +168,11 @@
   .tab-btn.active .tab-count {
     background: var(--ht-blue);
     color: #fff;
+  }
+  @media (max-width: 640px) {
+    .tab-bar { overflow-x: auto; }
+    .tab-btn { padding: 10px 16px; font-size: 13px; white-space: nowrap; }
+    .tab-count { font-size: 10px; padding: 1px 5px; }
   }
 
   /* ── 分类区块 ── */
@@ -854,6 +871,30 @@
     margin-left: 6px;
     vertical-align: middle;
   }
+
+  /* 酒企新品手机端优化 */
+  @media (max-width: 640px) {
+    .xinpin-table { font-size: 12px; }
+    .xinpin-table th { padding: 10px 6px; font-size: 12px; }
+    .xinpin-table td { padding: 8px 6px; }
+    .xinpin-company-tag { 
+      display: block; 
+      margin-left: 0; 
+      margin-top: 4px;
+      font-size: 10px;
+    }
+    #xinpin-filter-btns { 
+      overflow-x: auto; 
+      flex-wrap: nowrap !important;
+      padding-bottom: 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+    #xinpin-filter-btns .range-btn { 
+      white-space: nowrap; 
+      flex-shrink: 0;
+    }
+    .filter-section { padding: 12px !important; }
+  }
     color: #2e7d32;
     border-radius: 4px;
     font-size: 11px;
@@ -881,11 +922,6 @@
 </nav>
 
 <div class="main">
-  <!-- 页面标题 -->
-  <div class="page-header">
-    <h1>白酒数据库</h1>
-    <p>覆盖高端/次高端白酒批价及出厂价走势、SW白酒1Q26业绩跟踪、白酒上市公司新品发布追踪</p>
-  </div>
 
   <!-- Tab 切换 -->
   <div class="tab-bar">
@@ -1120,7 +1156,7 @@
     <div class="perf-summary">
       <div class="perf-stat-box">
         <div class="perf-stat-label">近一月新品数量</div>
-        <div class="perf-stat-value red" id="xinpin-total">—</div>
+        <div class="perf-stat-value red" id="xinpin-total">2</div>
         <div class="perf-stat-sub">个产品</div>
       </div>
     </div>
@@ -1136,7 +1172,6 @@
       <table class="xinpin-table" id="xinpin-table">
         <thead>
           <tr>
-            <th style="width:150px;white-space:nowrap;">序号</th>
             <th style="white-space:nowrap;text-align:center;">产品名称</th>
             <th style="width:250px;white-space:nowrap;">上市时间</th>
           </tr>
@@ -1181,11 +1216,6 @@
       </div>
     </div>
   </div>
-</div>
-
-<!-- 页脚 -->
-<div class="footer">
-  <strong>华泰证券食品饮料研究</strong> · 白酒批价追踪系统 · 数据来源：华泰财富研究
 </div>
 
 <script>
@@ -1357,23 +1387,20 @@ function renderXinpin(filter = '') {
   });
   
   let html = '';
-  sorted.forEach((p, idx) => {
+  sorted.forEach((p) => {
     const colors = COMPANY_COLORS[p.公司] || { bg: '#f5f5f5', color: '#666' };
     const tagStyle = `background:${colors.bg};color:${colors.color};`;
     html += `<tr>
-      <td>${idx + 1}</td>
       <td style="text-align:center;">${p.产品名}<span class="xinpin-company-tag" style="${tagStyle}">${p.公司}</span></td>
       <td style="color:#666;">${p.上市时间}</td>
     </tr>`;
   });
   tbody.innerHTML = html;
   
-  // 计算近三月新品数量
-  const now = new Date();
-  const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+  // 计算近一月新品数量（3月以来）
   const recentCount = XINPIN_DATA.filter(p => {
     const d = new Date(p.上市时间 + '-01');
-    return d >= threeMonthsAgo;
+    return d >= new Date('2026-03-01');
   }).length;
   document.getElementById('xinpin-total').textContent = recentCount;
 }
@@ -1777,7 +1804,7 @@ const DONGXIAO_DATA = [
     company: '今世缘',
     color: '#059669',
     items: [
-      { text: '26Q1预计下滑幅度环比收窄，产品结构或有下移。Q1淡雅预计仍然贡献主要增量，主因提价前收款进度较快、春节动销需求较好。淡季公司以去库挺价为主，进一步释放表内压力。' },
+      { text: 'Q1淡雅预计仍然贡献主要增量，主因提价前收款进度较快、春节动销需求较好。淡季公司以去库挺价为主，进一步释放表内压力。' },
       { text: '淡季各产品以稳价格、去库存为主，核心单品国缘淡雅表现较好，近年来保持连年增长态势四开对开同比下滑、环比改善，预计进入Q2低基数期有望逐步改善。' },
       { text: '春糖期间公司反馈经营重心高度聚焦于江苏省内及周边核心市场，对上海、浙江等周边市场的增长潜力持乐观态度，整体结构稳中向好。' },
       { text: '3月24日新成立数字化营销中心，推进数字化宴席、终端赋能、会员体系建设及线上线下一体化营销闭环。' }
@@ -1787,7 +1814,7 @@ const DONGXIAO_DATA = [
     company: '古井贡酒',
     color: '#b45309',
     items: [
-      { text: '26Q1预计报表延续调整趋势，淡季以去库存、促动销为主。产品端古20预计承压较大，古5/8相对较好也受到2501高基数压力，公司通过增加贡系列等新品补充收入。当前渠道压力仍然较大，淡季不给经销商库存压力。预计进入Q2，低基数下经营状态有望逐步改善。' },
+      { text: '淡季以去库存、促动销为主。产品端古20预计承压较大，古5/8相对较好也受到2501高基数压力，公司通过增加贡系列等新品补充收入。当前渠道压力仍然较大，淡季不给经销商库存压力。预计进入Q2，低基数下经营状态有望逐步改善。' },
       { text: '今年公司聚焦白酒主业，以健康酒赛道为突破口构建差异化优势。产品上轻养社、神力酒是开辟第二增长曲线的关键；渠道上依托"三通工程"与数字化赋能，围绕轻养社打造场景化体系。' }
     ]
   },
@@ -1795,7 +1822,7 @@ const DONGXIAO_DATA = [
     company: '迎驾贡酒',
     color: '#1e8a3e',
     items: [
-      { text: '26Q1预计报表逐步开始改善。考虑到春节前(25Q4)回款加快，春节期间洞6、洞9动销势能较好，26Q1低基数下报表压力小于板块整体。当前渠道经营状态边际改善，建议关注库存去化节奏，预计先于板块迎来基本面拐点。' },
+      { text: '考虑到春节前(25Q4)回款加快，春节期间洞6、洞9动销势能较好，26Q1低基数下报表压力小于板块整体。当前渠道经营状态边际改善，建议关注库存去化节奏，预计先于板块迎来基本面拐点。' },
       { text: '近期公司高管履新，杨照兵出任公司总经理，顾正祝出任销售公司总经理，与杨照兵共同打理相关事务，两位领导均为一线销售出身，市场经验较为丰富。' }
     ]
   }
