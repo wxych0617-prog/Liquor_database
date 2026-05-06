@@ -82,50 +82,31 @@
   }
 
   /* ── 观点模块 ── */
-  .opinion-section {
-    background: #fafafa;
-    border-left: 4px solid var(--ht-blue);
-    border-radius: 4px;
-    padding: 16px 20px;
-    margin-bottom: 24px;
+  .opinion-card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   }
-  .opinion-header {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ht-blue);
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .opinion-header::before {
-    content: '';
-    display: inline-block;
-    width: 4px;
-    height: 14px;
-    background: var(--ht-blue);
-    border-radius: 2px;
-  }
-  .opinion-item {
-    margin-bottom: 14px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid #eee;
-  }
-  .opinion-item:last-child {
+  .opinion-card:last-child {
     margin-bottom: 0;
-    padding-bottom: 0;
-    border-bottom: none;
   }
-  .opinion-date {
-    font-size: 11px;
-    color: var(--text-muted);
-    margin-bottom: 6px;
+  .opinion-date-tag {
+    display: inline-block;
+    background: var(--ht-blue);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-bottom: 12px;
   }
   .opinion-text {
     font-size: 13px;
     color: var(--text-primary);
-    line-height: 1.7;
-    text-align: justify;
+    line-height: 1.8;
   }
 
   /* ── 主体 ── */
@@ -1005,15 +986,13 @@
 
   <!-- 观点模块 -->
   <div class="tab-panel active" id="panel-guandian">
-    <div class="opinion-section">
-      <div class="opinion-item">
-        <div class="opinion-date">2026/5/6</div>
-        <div class="opinion-text">白酒行业仍处出清磨底阶段，25Q4+26Q1合并后收入同比-11%、净利润同比-15%。行业仍处出清阶段，我们预计未来或沿"供给→渠道→报表→需求"顺序修复演绎，当前已步入第二阶段。与以往周期不同，本轮库存调整并非完全由渠道被动消化，而是龙头企业主动收缩供给、以更市场化方式推动出清，这使得库存问题虽然需要时间解决，但修复路径更加可控。</div>
-      </div>
-      <div class="opinion-item">
-        <div class="opinion-date">2026/4/27</div>
-        <div class="opinion-text">上周白酒表现良好主要由于年报&amp;一季报业绩催化(迎驾/老白干/汾酒Q4超预期)，经过长时间回调，市场对出清标的的关注度提升，另一方面，市场风格转化，资金高切低也有较强影响。我们判断未来行业供给端稳步收缩，需求端处历史低位；一旦需求底部修复，将带来较大的价格弹性，同时将快速修复业绩和估值预期。目前龙头主动收缩供给去库存，早出清的中小公司早反弹，大龙头仅需1-2个季度可出清到位；需求受外部环境影响被压缩至低位，短期宴席和自饮韧性强，商务及投资收藏中长期弹性更大。市场对行业的悲观共识集中在弱基本面、无右侧信号、横向对比投资吸引力不足等方面，一旦基本面不再边际恶化，市场愿意给右侧信号积极定价，估值与基本面错配提供布局空间。结构上建议高端龙头作为底仓，弹性关注出清较为充分的区域龙头，最后布局二线次高端顺序。</div>
-      </div>
+    <div class="opinion-card">
+      <div class="opinion-date-tag">2026/5/6</div>
+      <div class="opinion-text">白酒行业仍处出清磨底阶段，25Q4+26Q1合并后收入同比-11%、净利润同比-15%。行业仍处出清阶段，我们预计未来或沿"供给→渠道→报表→需求"顺序修复演绎，当前已步入第二阶段。与以往周期不同，本轮库存调整并非完全由渠道被动消化，而是龙头企业主动收缩供给、以更市场化方式推动出清，这使得库存问题虽然需要时间解决，但修复路径更加可控。</div>
+    </div>
+    <div class="opinion-card">
+      <div class="opinion-date-tag">2026/4/27</div>
+      <div class="opinion-text">上周白酒表现良好主要由于年报&amp;一季报业绩催化(迎驾/老白干/汾酒Q4超预期)，经过长时间回调，市场对出清标的的关注度提升，另一方面，市场风格转化，资金高切低也有较强影响。我们判断未来行业供给端稳步收缩，需求端处历史低位；一旦需求底部修复，将带来较大的价格弹性，同时将快速修复业绩和估值预期。目前龙头主动收缩供给去库存，早出清的中小公司早反弹，大龙头仅需1-2个季度可出清到位；需求受外部环境影响被压缩至低位，短期宴席和自饮韧性强，商务及投资收藏中长期弹性更大。市场对行业的悲观共识集中在弱基本面、无右侧信号、横向对比投资吸引力不足等方面，一旦基本面不再边际恶化，市场愿意给右侧信号积极定价，估值与基本面错配提供布局空间。结构上建议高端龙头作为底仓，弹性关注出清较为充分的区域龙头，最后布局二线次高端顺序。</div>
     </div>
   </div>
 
@@ -1242,8 +1221,8 @@
       <table class="xinpin-table" id="xinpin-table">
         <thead>
           <tr>
-            <th style="white-space:nowrap;text-align:center;">产品名称</th>
-            <th style="width:250px;white-space:nowrap;">上市时间</th>
+            <th style="width:70%;white-space:nowrap;">产品名称</th>
+            <th style="width:30%;white-space:nowrap;">上市时间</th>
           </tr>
         </thead>
         <tbody id="xinpin-tbody"></tbody>
