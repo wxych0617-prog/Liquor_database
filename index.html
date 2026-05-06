@@ -603,7 +603,6 @@
     border-bottom: 1px solid var(--ht-border);
     white-space: nowrap;
   }
-  .perf-table thead th:first-child { text-align: left; }
   .perf-table tbody tr {
     border-bottom: 1px solid #f0f2f5;
     transition: background 0.15s;
@@ -615,20 +614,22 @@
     text-align: center;
     color: var(--text-primary);
   }
-  .perf-table tbody td:first-child { text-align: left; font-weight: 500; }
   .perf-table .company-cell {
     display: flex;
     flex-direction: column;
     gap: 1px;
+    align-items: center;
   }
   .perf-table .company-name {
     font-weight: 600;
     font-size: 13px;
     color: var(--text-primary);
+    text-align: center;
   }
   .perf-table .company-code {
     font-size: 11px;
     color: var(--text-muted);
+    text-align: center;
   }
   .perf-table .status-badge {
     display: inline-block;
@@ -665,7 +666,7 @@
     font-weight: 700;
     font-size: 12px;
     padding: 7px 14px;
-    text-align: left;
+    text-align: center;
     letter-spacing: 0.5px;
   }
   .perf-table .category-row.cat-gaoduan td    { background: #c0392b; }
